@@ -89,6 +89,13 @@ curl -X POST http://localhost:8000/api/upload_files \
 curl http://localhost:8000/api/results/{processing_id}
 ```
 
+## API Quick Reference
+
+- GET `/api/health`: Service health.
+- POST `/api/upload_files`: Upload ASL and M0 files.
+- POST `/api/process`: Start ASL QC/CBF processing with parameters.
+- GET `/api/results/{processing_id}`: Retrieve processing results.
+
 ## Configuration
 
 ### ASL Processing Parameters

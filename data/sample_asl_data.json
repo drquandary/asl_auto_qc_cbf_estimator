@@ -1,0 +1,291 @@
+{
+  "sample_asl_dataset": {
+    "description": "Sample ASL dataset metadata and expected processing parameters",
+    "dataset_info": {
+      "subject_id": "sub-001",
+      "session": "ses-01",
+      "acquisition": "pCASL",
+      "reconstruction": "standard",
+      "data_format": "BIDS"
+    },
+    "acquisition_parameters": {
+      "sequence_type": "pCASL",
+      "field_strength": "3T",
+      "post_labeling_delay": 1.8,
+      "labeling_duration": 1.8,
+      "background_suppression": true,
+      "n_control_label_pairs": 30,
+      "repetition_time": 4.0,
+      "echo_time": 14.0,
+      "flip_angle": 90,
+      "voxel_size": [3.0, 3.0, 4.0],
+      "matrix_size": [64, 64, 24],
+      "slice_timing": "sequential_ascending"
+    },
+    "processing_parameters": {
+      "labeling_efficiency": 0.85,
+      "blood_t1": 1.65,
+      "tissue_t1": 1.3,
+      "partition_coefficient": 0.9,
+      "temporal_filtering": true,
+      "spatial_smoothing": true,
+      "motion_correction": false,
+      "partial_volume_correction": false
+    },
+    "quality_thresholds": {
+      "snr_minimum": 3.0,
+      "temporal_snr_minimum": 5.0,
+      "motion_threshold": 2.0,
+      "outlier_z_score": 2.5
+    },
+    "expected_outputs": {
+      "cbf_range": [20, 100],
+      "mean_cbf_gm": 60.5,
+      "mean_cbf_wm": 25.2,
+      "snr_estimate": 8.3,
+      "temporal_stability": "good",
+      "motion_quality": "excellent",
+      "overall_quality_grade": "A"
+    },
+    "file_paths": {
+      "asl_data": "data/sample_asl.nii.gz",
+      "m0_calibration": "data/sample_m0.nii.gz",
+      "brain_mask": "data/sample_mask.nii.gz",
+      "anatomical_atlas": "data/sample_atlas.nii.gz"
+    },
+    "validation_metrics": {
+      "data_integrity": {
+        "no_nan_values": true,
+        "no_inf_values": true,
+        "positive_m0_values": true,
+        "valid_dimensions": true
+      },
+      "expected_cbf_statistics": {
+        "whole_brain_mean": 42.8,
+        "whole_brain_std": 18.5,
+        "gm_mean": 62.3,
+        "wm_mean": 23.1,
+        "coefficient_of_variation": 0.43
+      },
+      "quality_control_flags": {
+        "excessive_motion": false,
+        "low_snr": false,
+        "temporal_drift": false,
+        "spatial_outliers": false
+      }
+    },
+    "reference_values": {
+      "literature_cbf_ranges": {
+        "healthy_adult_gm": [50, 80],
+        "healthy_adult_wm": [15, 30],
+        "elderly_gm": [40, 65],
+        "elderly_wm": [12, 25]
+      },
+      "sequence_specific_parameters": {
+        "pCASL": {
+          "recommended_pld": [1.5, 2.0, 2.5],
+          "recommended_tau": 1.8,
+          "labeling_efficiency": 0.85
+        },
+        "CASL": {
+          "recommended_pld": [1.2, 1.8],
+          "recommended_tau": 1.5,
+          "labeling_efficiency": 0.95
+        },
+        "PASL": {
+          "recommended_pld": [0.8, 1.2, 1.6],
+          "recommended_tau": 0.7,
+          "labeling_efficiency": 0.95
+        }
+      }
+    }
+  },
+  "processing_examples": [
+    {
+      "example_id": "basic_processing",
+      "description": "Basic ASL processing with default parameters",
+      "input": {
+        "asl_file_path": "data/sample_asl.nii.gz",
+        "processing_parameters": {
+          "sequence_type": "pCASL",
+          "post_labeling_delay": 1.8,
+          "labeling_duration": 1.8,
+          "temporal_filter": true,
+          "spatial_smoothing": true
+        }
+      },
+      "expected_output": {
+        "cbf_range": [0, 120],
+        "processing_time": 45.2,
+        "quality_grade": "B+",
+        "warnings": []
+      }
+    },
+    {
+      "example_id": "advanced_processing",
+      "description": "Advanced processing with M0 calibration and atlas-based analysis",
+      "input": {
+        "asl_file_path": "data/sample_asl.nii.gz",
+        "m0_file_path": "data/sample_m0.nii.gz",
+        "mask_file_path": "data/sample_mask.nii.gz",
+        "atlas_file_path": "data/sample_atlas.nii.gz",
+        "processing_parameters": {
+          "sequence_type": "pCASL",
+          "post_labeling_delay": 1.8,
+          "labeling_duration": 1.8,
+          "temporal_filter": true,
+          "spatial_smoothing": true,
+          "partial_volume_correction": false
+        }
+      },
+      "expected_output": {
+        "cbf_range": [0, 110],
+        "processing_time": 62.8,
+        "quality_grade": "A-",
+        "regional_analysis": {
+          "frontal_cortex": 65.2,
+          "parietal_cortex": 58.9,
+          "temporal_cortex": 61.4,
+          "occipital_cortex": 63.1
+        },
+        "warnings": []
+      }
+    },
+    {
+      "example_id": "quality_issues",
+      "description": "Dataset with quality issues for testing QC pipeline",
+      "input": {
+        "asl_file_path": "data/poor_quality_asl.nii.gz",
+        "processing_parameters": {
+          "sequence_type": "pCASL",
+          "post_labeling_delay": 1.8,
+          "labeling_duration": 1.8
+        }
+      },
+      "expected_output": {
+        "cbf_range": [-20, 180],
+        "processing_time": 38.5,
+        "quality_grade": "D",
+        "warnings": [
+          "Excessive motion detected",
+          "Low SNR in multiple volumes",
+          "Temporal instability detected"
+        ],
+        "quality_issues": [
+          "motion_outliers",
+          "low_perfusion_snr",
+          "temporal_drift"
+        ]
+      }
+    }
+  ],
+  "test_cases": [
+    {
+      "test_name": "validate_asl_dimensions",
+      "description": "Test that ASL data has correct dimensions",
+      "assertions": [
+        "asl_data.ndim == 4",
+        "asl_data.shape[3] % 2 == 0",
+        "asl_data.shape[3] >= 20"
+      ]
+    },
+    {
+      "test_name": "validate_cbf_range", 
+      "description": "Test that CBF values are in physiological range",
+      "assertions": [
+        "cbf_map.min() >= -50",
+        "cbf_map.max() <= 200",
+        "mean_cbf_in_mask >= 10",
+        "mean_cbf_in_mask <= 150"
+      ]
+    },
+    {
+      "test_name": "validate_quality_scores",
+      "description": "Test that quality scores are properly calculated",
+      "assertions": [
+        "0 <= overall_quality_score <= 100",
+        "quality_grade in ['A', 'B', 'C', 'D', 'F']",
+        "len(quality_summary.major_issues) >= 0",
+        "data_usability in ['excellent', 'acceptable', 'marginal', 'poor']"
+      ]
+    }
+  ],
+  "common_issues_and_solutions": {
+    "low_snr": {
+      "description": "Signal-to-noise ratio below threshold",
+      "possible_causes": [
+        "Inadequate number of averages",
+        "Coil sensitivity issues", 
+        "Subject motion",
+        "Incomplete background suppression"
+      ],
+      "recommendations": [
+        "Increase number of control-label pairs",
+        "Check coil positioning and performance",
+        "Implement motion correction",
+        "Optimize background suppression parameters"
+      ]
+    },
+    "excessive_motion": {
+      "description": "Motion parameters exceed acceptable thresholds",
+      "possible_causes": [
+        "Subject discomfort",
+        "Long scan duration",
+        "Inadequate head stabilization"
+      ],
+      "recommendations": [
+        "Use motion correction algorithms",
+        "Consider excluding corrupted volumes",
+        "Implement prospective motion correction",
+        "Improve subject preparation and comfort"
+      ]
+    },
+    "temporal_instability": {
+      "description": "Signal varies significantly across time",
+      "possible_causes": [
+        "Scanner drift",
+        "Physiological noise",
+        "B0 field changes",
+        "Temperature variations"
+      ],
+      "recommendations": [
+        "Apply temporal filtering",
+        "Check scanner stability",
+        "Monitor physiological parameters",
+        "Implement drift correction"
+      ]
+    },
+    "unrealistic_cbf_values": {
+      "description": "CBF values outside physiological range",
+      "possible_causes": [
+        "Incorrect sequence parameters",
+        "Inadequate M0 calibration",
+        "Processing errors",
+        "Vascular artifacts"
+      ],
+      "recommendations": [
+        "Verify sequence parameters",
+        "Check M0 image quality",
+        "Review processing pipeline",
+        "Exclude vascular regions"
+      ]
+    }
+  },
+  "performance_benchmarks": {
+    "processing_times": {
+      "typical_dataset_64x64x32x60": "120-180 seconds",
+      "high_resolution_128x128x64x60": "300-450 seconds",
+      "multi_pld_dataset": "180-240 seconds"
+    },
+    "memory_requirements": {
+      "typical_dataset": "2-4 GB RAM",
+      "high_resolution": "8-12 GB RAM",
+      "batch_processing": "4-8 GB RAM per job"
+    },
+    "accuracy_metrics": {
+      "cbf_repeatability": "CV < 10%",
+      "regional_consistency": "ICC > 0.8",
+      "test_retest_reliability": "r > 0.9"
+    }
+  }
+}
