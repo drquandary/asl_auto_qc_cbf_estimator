@@ -340,7 +340,7 @@ class VisualizationRequest(BaseModel):
     processing_result_id: str
     plot_types: List[str] = Field(["cbf_map", "quality_metrics", "temporal_plot"])
     save_plots: bool = Field(True, description="Save plots to files")
-    plot_format: str = Field("png", regex="^(png|jpg|svg|pdf)$")
+    plot_format: str = Field("png", pattern="^(png|jpg|svg|pdf)$")
 
 
 class ConfigurationUpdate(BaseModel):
